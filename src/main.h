@@ -26,7 +26,7 @@ class CInv;
 class CRequestTracker;
 class CNode;
 
-static const int LAST_POW_BLOCK = 10000; // Approx. 7.5 Days of Proof-Of-Work
+static const int LAST_POW_BLOCK = 10000000; // Approx. 7500 Days of Proof-Of-Work
 
 static const unsigned int MAX_BLOCK_SIZE = 4000000;
 static const unsigned int MAX_BLOCK_SIZE_GEN = MAX_BLOCK_SIZE/2;
