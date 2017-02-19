@@ -965,23 +965,11 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
     int64_t nSubsidy = 0 * COIN;
-    if(pindexBest->nHeight+1 == 1)
+    // Premine 600.000.000 coins
+    if(pindexBest->nHeight <= 600)
     {
-        nSubsidy = 100000000 * COIN; // ICO Premine
+        nSubsidy = 1000000 * COIN; // ICO Premine
     }
-		    else if(pindexBest->nHeight+1 <= 175)
-    {
-        nSubsidy = 0 * COIN; // Low Reward for Fair Launch
-    }
-        else if(pindexBest->nHeight+1 == 176)
-    {
-        nSubsidy = 9890000000 * COIN;
-    }
-		    else if(pindexBest->nHeight+1 < 10000)
-    {
-        nSubsidy = 0 * COIN;
-    }
-
 
     if (fDebug && GetBoolArg("-printcreation"))
         printf("GetProofOfWorkReward() : create=%s nSubsidy=%"PRId64"\n", FormatMoney(nSubsidy).c_str(), nSubsidy);
