@@ -1,0 +1,17 @@
+1. Install Dependencies
+
+apt-get install git build-essential libboost-dev libboost-all-dev libssl-dev libdb++-dev libminiupnpc-dev
+
+2. Download the Source
+
+cd /usr/src
+
+git clone https://github.com/borzalom/bitmox
+
+3. Compile Bitmox Core
+
+cd bitmox/src/
+cd leveldb && CC=gcc CXX=g++ make OPT="-m64 -pipe -fstack-protector-all -D_FORTIFY_SOURCE=2 -O2" libleveldb.a libmemenv.a
+cd ..
+make -f makefile.unix
+
