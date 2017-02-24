@@ -1015,7 +1015,7 @@ boost::filesystem::path GetDefaultDataDir()
     // Unix: ~/.bitmo
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "bitmo";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "bitmox";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -1027,10 +1027,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "bitmo";
+    return pathRet / "bitmox";
 #else
     // Unix
-    return pathRet / ".bitmo";
+    return pathRet / ".bitmox";
 #endif
 #endif
 }
