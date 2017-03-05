@@ -494,8 +494,10 @@ bool CTransaction::CheckTransaction() const
     }
 
     if (IsCoinBase())
-    {
-        if (vin[0].scriptSig.size() < 2 || vin[0].scriptSig.size() > 100)
+    {   
+        // FIXMEE!
+		// if (vin[0].scriptSig.size() < 2 || vin[0].scriptSig.size() > 100)
+        if (vin[0].scriptSig.size() < 1 || vin[0].scriptSig.size() > 100)
             return DoS(100, error("CTransaction::CheckTransaction() : coinbase script size is invalid"));
     }
     else
@@ -2006,14 +2008,22 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
 {
     // These are checks that are independent of context
     // that can be verified before saving an orphan block.
+    
+    // FIXMEE!
+    bool PoSign = true;
 
     // Size limits
     if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
         return DoS(100, error("CheckBlock() : size limits failed"));
 
-    // Check proof of work matches claimed amount
-    if (fCheckPOW && IsProofOfWork() && !CheckProofOfWork(GetHash(), nBits))
-        return DoS(50, error("CheckBlock() : proof of work failed"));
+    if (!PoSign) {
+	    // Check proof of work matches claimed amount
+	    if (fCheckPOW && IsProofOfWork() && !CheckProofOfWork(GetHash(), nBits))
+	        return DoS(50, error("CheckBlock() : proof of work failed"));    
+    } else {
+       // FIXMEE!
+       // Check the block signature validity of proof of signature 
+    }
 
     // Check timestamp
     if (GetBlockTime() > FutureDrift(GetAdjustedTime()))
@@ -2359,6 +2369,36 @@ bool CBlock::SignBlock(CWallet& wallet, int64_t nFees)
     return false;
 }
 
+bool CBlock::SignPoSignBlock(int64_t nFees)
+{
+
+    static int64_t nLastCoinStakeSearchTime = GetAdjustedTime(); // startup timestamp
+
+    hashMerkleRoot = BuildMerkleTree();
+    
+    CKey key;
+    
+    string strSecret;
+    if (mapArgs.count("-posigkey")) {
+        	  strSecret = GetArg("-posigkey", "");
+    }       
+
+    CBitcoinSecret vchSecret;
+    bool fGood = vchSecret.SetString(strSecret);
+
+    if (fGood) {          
+       bool fCompressed;
+       CSecret secret = vchSecret.GetSecret(fCompressed);
+       key.SetSecret(secret, fCompressed);
+       CKeyID vchAddress = key.GetPubKey().GetID();       
+    } else {
+       // FIXMEE! Invalid Proof of Signature Key GetArg("-posigkey", "")
+    }
+   
+    return key.Sign(GetHash(), vchBlockSig);            
+}
+
+
 bool CBlock::CheckBlockSignature() const
 {
     if (IsProofOfWork())
@@ -2385,6 +2425,23 @@ bool CBlock::CheckBlockSignature() const
 
     return false;
 }
+
+bool CBlock::CheckPoSignBlockSignature() const
+{
+        // FIXMEE!
+        string strPubKey = "B5tde2DmwXbHekgu58frX7NbVz2dRo3YdL"; // trust proof of signature Pubkey
+        std::vector<unsigned char> vchRet;
+
+        bool fGood = DecodeBase58(strPubKey, vchRet);
+        CPubKey PubKey(vchRet);
+        CKey key;
+        if (!key.SetPubKey(PubKey))
+            return false;
+        if (vchBlockSig.empty())
+            return false;	
+	     return key.Verify(GetHash(), vchBlockSig);
+}
+
 
 bool CheckDiskSpace(uint64_t nAdditionalBytes)
 {

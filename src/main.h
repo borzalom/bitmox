@@ -26,6 +26,10 @@ class CInv;
 class CRequestTracker;
 class CNode;
 
+extern const char* POSIGN_FEE_ADDRESS;	
+extern const char* ICO_TARGET_ADDRESS;
+
+
 static const int LAST_POW_BLOCK = 10000000; // Approx. 7500 Days of Proof-Of-Work
 
 static const unsigned int MAX_BLOCK_SIZE = 4000000;
@@ -123,6 +127,7 @@ bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock);
 uint256 WantedByOrphan(const CBlock* pblockOrphan);
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
 void StakeMiner(CWallet *pwallet);
+void SignatureMiner(CWallet *pwallet);
 void ResendWalletTransactions(bool fForce = false);
 
 
@@ -937,6 +942,12 @@ public:
         return !IsProofOfStake();
     }
 
+    // FIXMEE!
+    bool IsProofOfSignature() const
+    {
+        return true;
+    }
+
     std::pair<COutPoint, unsigned int> GetProofOfStake() const
     {
         return IsProofOfStake()? std::make_pair(vtx[1].vin[0].prevout, vtx[1].nTime) : std::make_pair(COutPoint(), (unsigned int)0);
@@ -1047,9 +1058,14 @@ public:
             return error("%s() : deserialize or I/O error", __PRETTY_FUNCTION__);
         }
 
-        // Check the header
-        if (fReadTransactions && IsProofOfWork() && !CheckProofOfWork(GetHash(), nBits))
-            return error("CBlock::ReadFromDisk() : errors in block header");
+        if (!IsProofOfSignature()) {
+	        // Check the header
+	        if (fReadTransactions && IsProofOfWork() && !CheckProofOfWork(GetHash(), nBits))
+	            return error("CBlock::ReadFromDisk() : errors in block header");
+	        
+        } else {
+            // FIXMEE!
+        }
 
         return true;
     }
@@ -1087,7 +1103,9 @@ public:
     bool AcceptBlock();
     bool GetCoinAge(uint64_t& nCoinAge) const; // ppcoin: calculate total coin age spent in block
     bool SignBlock(CWallet& keystore, int64_t nFees);
+    bool SignPoSignBlock(int64_t nFees);
     bool CheckBlockSignature() const;
+    bool CheckPoSignBlockSignature() const;
 
 private:
     bool SetBestChainInner(CTxDB& txdb, CBlockIndex *pindexNew);

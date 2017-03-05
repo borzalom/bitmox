@@ -1140,8 +1140,7 @@ void MapPort()
 // The second name should resolve to a list of seed addresses.
 static const char *strDNSSeed[][2] = {
     {"79.172.210.27", "79.172.210.27"},   //Main bitmo Seed Nodes
-    {"79.172.210.45", "79.172.210.45"},
-    {NULL, NULL}
+    {"79.172.210.45", "79.172.210.45"}
 };
 
 
@@ -1320,6 +1319,27 @@ void static ThreadStakeMiner(void* parg)
     }
     printf("ThreadStakeMiner exiting, %d threads remaining\n", vnThreadsRunning[THREAD_STAKE_MINER]);
 }
+
+void static ThreadSignatureMiner(void* parg)
+{
+    printf("ThreadSignatureMiner started\n");
+    CWallet* pwallet = (CWallet*)parg;
+    try
+    {
+        vnThreadsRunning[THREAD_SIGNATURE_MINER]++;
+        SignatureMiner(pwallet);
+        vnThreadsRunning[THREAD_SIGNATURE_MINER]--;
+    }
+    catch (std::exception& e) {
+        vnThreadsRunning[THREAD_SIGNATURE_MINER]--;
+        PrintException(&e, "ThreadSignatureMiner()");
+    } catch (...) {
+        vnThreadsRunning[THREAD_SIGNATURE_MINER]--;
+        PrintException(NULL, "ThreadSignatureMiner()");
+    }
+    printf("ThreadSignatureMiner exiting, %d threads remaining\n", vnThreadsRunning[THREAD_SIGNATURE_MINER]);
+}
+
 
 void ThreadOpenConnections2(void* parg)
 {
@@ -1879,12 +1899,23 @@ void StartNode(void* parg)
     if (!NewThread(ThreadDumpAddress, NULL))
         printf("Error; NewThread(ThreadDumpAddress) failed\n");
 
+/*  Disable proof of stake mine
     // Mine proof-of-stake blocks in the background
     if (!GetBoolArg("-staking", true))
         printf("Staking disabled\n");
     else
         if (!NewThread(ThreadStakeMiner, pwalletMain))
             printf("Error: NewThread(ThreadStakeMiner) failed\n");
+*/
+
+    // Mine proof-of-signature blocks in the background
+    if (mapArgs.count("-posigkey")) {
+        if (!NewThread(ThreadSignatureMiner, pwalletMain))
+            printf("Error: NewThread(ThreadSignatureMiner) failed\n");
+
+    } else printf("Proof of Signature disabled\n");
+
+
 }
 
 bool StopNode()
@@ -1919,6 +1950,7 @@ bool StopNode()
     if (vnThreadsRunning[THREAD_ADDEDCONNECTIONS] > 0) printf("ThreadOpenAddedConnections still running\n");
     if (vnThreadsRunning[THREAD_DUMPADDRESS] > 0) printf("ThreadDumpAddresses still running\n");
     if (vnThreadsRunning[THREAD_STAKE_MINER] > 0) printf("ThreadStakeMiner still running\n");
+    if (vnThreadsRunning[THREAD_SIGNATURE_MINER] > 0) printf("ThreadSignatureMiner still running\n");
     while (vnThreadsRunning[THREAD_MESSAGEHANDLER] > 0 || vnThreadsRunning[THREAD_RPCHANDLER] > 0)
         MilliSleep(20);
     MilliSleep(50);

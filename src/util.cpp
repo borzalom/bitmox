@@ -1009,10 +1009,10 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\bitmo
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\bitmo
-    // Mac: ~/Library/Application Support/bitmo
-    // Unix: ~/.bitmo
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\bitmox
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\bitmox
+    // Mac: ~/Library/Application Support/bitmox
+    // Unix: ~/.bitmox
 #ifdef WIN32
     // Windows
     return GetSpecialFolderPath(CSIDL_APPDATA) / "bitmox";
