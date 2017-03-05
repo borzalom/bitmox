@@ -168,7 +168,7 @@ bitmod.exe: $(OBJS:obj/%=obj/%)
 	g++ $(CFLAGS) $(LDFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)
 
 clean:
-        -del /Q bitmod
+	-del /Q bitmod
 	-del /Q obj\*
 
 FORCE:
