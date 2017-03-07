@@ -967,8 +967,8 @@ uint256 WantedByOrphan(const CBlock* pblockOrphan)
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
     int64_t nSubsidy = 0 * COIN;
-    // Premine 600.000.000 coins
-    if(pindexBest->nHeight <= 600)
+    // Premine 650.000.000 coins
+    if(pindexBest->nHeight <= 650)
     {
         nSubsidy = 1000000 * COIN; // ICO Premine
     }
