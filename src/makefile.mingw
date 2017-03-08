@@ -20,13 +20,13 @@ CXX ?= g++
 USE_UPNP:=-
 USE_IPV6:=1
 
-DEPSDIR?=/usr/local
-BOOST_SUFFIX?=-mgw48-mt-s-1_55
+DEPSDIR?=f:/msys32/mingw32
+BOOST_SUFFIX?=-mt
 
 INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(DEPSDIR)/include" \
- -I"c:/deps/boost_1_55_0" \
+ -I"f:/msys32/mingw32/boost" \
  -I"c:/deps/db-4.8.30.NC/build_unix" \
  -I"c:/deps/miniupnpc-1.8" \
  -I"c:/deps/openssl-1.0.1g/include"
@@ -54,7 +54,7 @@ LIBS= \
 DEFS=-DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -DBOOST_SPIRIT_THREADSAFE
 DEBUGFLAGS=-g
 CFLAGS=-mthreads -O3 -msse2 -w -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
-LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat
+LDFLAGS=-Wl,-static -static-libgcc -static-libstdc++ -Wl,-Bstatic -lpthread -lstdc++ -Wl,--nxcompat
 
 TESTDEFS = -DTEST_DATA_DIR=$(abspath test/data)
 
