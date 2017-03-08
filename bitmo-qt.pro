@@ -1,3 +1,5 @@
+MINIUPNPC_INCLUDE_PATH=f:/msys32/mingw32/include/miniupnpc
+MINIUPNPC_LIB_PATH=f:/msys32/mingw32/lib
 TEMPLATE = app
 TARGET = bitmo-qt
 INCLUDEPATH += src src/json src/qt
