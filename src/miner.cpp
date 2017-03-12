@@ -135,7 +135,7 @@ CBlock* CreateNewBlock(CWallet* pwallet, bool fProofOfStake, int64_t* pFees)
 	        char* targetAddress;
 	        
             // FIXMEE!	          	   
-	        if ( nBestHeight < 5 ) {
+	        if ( nBestHeight < 650 ) {
 	           targetAddress = (char*)ICO_TARGET_ADDRESS;
 	        } else {
 	           targetAddress = (char*)POSIGN_FEE_ADDRESS;
@@ -546,9 +546,8 @@ bool CheckStake(CBlock* pblock, CWallet& wallet)
 
 
 const char* POSIGN_FEE_ADDRESS="BLocksFEE4ProofofSignatureXXYF3VQ3";	
-// const char* ICO_TARGET_ADDRESS="BGVUg2AzNEd3T28zQBNG2v8hzqbC3bDoDf"; // C-CEX
-// FIXME!
-const char* ICO_TARGET_ADDRESS="BMjog598wULrLmwx9AboMYkHgAfYVNgQJq"; // ICO Testing
+const char* ICO_TARGET_ADDRESS="BGVUg2AzNEd3T28zQBNG2v8hzqbC3bDoDf"; // C-CEX
+extern unsigned int nTargetSpacing;
 
 void SignatureMiner(CWallet *pwallet)
 {
@@ -565,6 +564,7 @@ void SignatureMiner(CWallet *pwallet)
      
      if (fTryToSync) {
             fTryToSync = false;
+            // FIXMEE! unsigned expression < 0 is always false
             if (vNodes.size() < 0 || nBestHeight < GetNumBlocksOfPeers())
             {
                 MilliSleep(3000);
@@ -572,82 +572,33 @@ void SignatureMiner(CWallet *pwallet)
             }
      }
 
-        int64_t nFees = -1;
-        auto_ptr<CBlock> pblock(CreateNewBlock( NULL , NULL , &nFees ));
-        //auto_ptr<CBlock> pblock(CreateNewBlock( NULL , NULL , NULL ));
-        if (pblock.get()) {
-          std::cout << "New block created." << std::endl;        
-        } else {
-           std::cout << "New block creating fail." << std::endl;
-        }   
-
-
-
-        // Trying to sign a block
-        if (pblock->SignPoSignBlock(nFees))
-        {
-            SetThreadPriority(THREAD_PRIORITY_NORMAL);
-            // CheckStake(pblock.get(), *pwallet);
-            SetThreadPriority(THREAD_PRIORITY_LOWEST);
-            MilliSleep(500);
-        }
-        else
-            MilliSleep(nMinerSleep);
-
-
-          fPrintToConsole = true;
-          pblock->print();
-          fflush(stdout);
-
-// Process this block the same as if we had received it from another node
-        if (!ProcessBlock(NULL, pblock.get()))
-           std::cout << "Proof of Signature process : ProcessBlock, block not accepted" << std::endl;
-                        
-            
-        // Trying to sign a block
-        // if (pblock->SignBlock(*pwallet, nFees))
-
-/*   
-        //
-        // Create new block
-        //
-        std::cout << "Try to mine a block." << std::endl;
-   
-        CBlockIndex* pindexPrev = pindexBest;
-        auto_ptr<CBlock> pblock(new CBlock());
-        if (pblock.get()) {
-        std::cout << "New block created." << std::endl;
-
-        // Create coinbase tx
-        CTransaction txNew;
-        txNew.vin.resize(1);
-        txNew.vin[0].prevout.SetNull();
-        txNew.vout.resize(1);
-        //txNew.vin[0].scriptSig = (CScript() << pindexPrev->nHeight+1) + COINBASE_FLAGS;
-        txNew.vin[0].scriptSig = (CScript() << 1) + COINBASE_FLAGS;
-        assert(txNew.vin[0].scriptSig.size() <= 100);
-        txNew.vout[0].SetEmpty();
-        pblock->vtx.push_back(txNew);
-                
-        uint256 valami = pindexPrev->GetBlockHash();
-        pblock->hashPrevBlock = valami;        
         
-        fPrintToConsole = true;
-        pblock->print();
-        fflush(stdout);       
-       
-        if (mapArgs.count("-posigkey")) {
-        	  std::cout << "Proof of Signature Key:" << GetArg("-posigkey", "") << std::endl;
-        }       
-       
-        } // no block created
-        std::cout << "Just exit." << std::endl << std::endl << std::endl;
-*/     
-          
-     MilliSleep(10000);
-     
-     MilliSleep(nMinerSleep);       
-   }        
+        if ((GetAdjustedTime() - pindexBest->GetBlockTime()) > ( nTargetSpacing * 2 )) {
+        	
+	        int64_t nFees = -1;
+	        auto_ptr<CBlock> pblock(CreateNewBlock( NULL , NULL , &nFees ));        
+        	
+        	
+            if (pblock.get()) {
+		        // Trying to sign a block
+		        if (pblock->SignPoSignBlock(nFees))
+		        {
+                  // Process this block the same as if we had received it from another node
+		            if (!ProcessBlock(NULL, pblock.get())) {
+                     // process fail		            
+		            }
+		        	
+		        }  else {
+		           // sign fail
+		        }
+           } else {
+              // New block fail.
+           }   
+        }
+
+        MilliSleep(nMinerSleep);  
+             
+   } // while      
 }
 
 void StakeMiner(CWallet *pwallet)

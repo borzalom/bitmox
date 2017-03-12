@@ -61,29 +61,14 @@ void StatisticsPage::updateStatistics()
     }
 
     QString subsidy = "";
-    if(pindexBest->nHeight < 250)
+
+    if(pindexBest->nHeight < 650)
     {
-        subsidy = "0 GNJ";
+        subsidy = "1000000 XBY";
     }
-    else if(pindexBest->nHeight < 1500)
+    else 
     {
-        subsidy = "100 GNJ";
-    }
-        else if(pindexBest->nHeight < 3100)
-    {
-        subsidy = "200 GNJ";
-    }
-        else if(pindexBest->nHeight < 4650)
-    {
-        subsidy = "250 GNJ";
-    }
-        else if(pindexBest->nHeight < 7200)
-    {
-        subsidy = "100 GNJ";
-    }
-        else if(pindexBest->nHeight < 10300)
-    {
-        subsidy = "50 GNJ";
+        subsidy = "0 XBY";
     }
 
     QString hardness = QString::number(pHardness, 'f', 6);
@@ -173,11 +158,11 @@ void StatisticsPage::updateStatistics()
 
     if(volume > volumePrevious)
     {
-        ui->volumeBox->setText("<b><font color=\"green\">" + qVolume + " GNJ" + "</font></b>");
+        ui->volumeBox->setText("<b><font color=\"green\">" + qVolume + " XBY" + "</font></b>");
     } else if(volume < volumePrevious) {
-        ui->volumeBox->setText("<b><font color=\"red\">" + qVolume + " GNJ" + "</font></b>");
+        ui->volumeBox->setText("<b><font color=\"red\">" + qVolume + " XBY" + "</font></b>");
     } else {
-        ui->volumeBox->setText(qVolume + " GNJ");
+        ui->volumeBox->setText(qVolume + " XBY");
     }
     updatePrevious(nHeight, nMinWeight, nNetworkWeight, phase, subsidy, pHardness, pHardness2, pPawrate2, Qlpawrate, peers, volume);
 }

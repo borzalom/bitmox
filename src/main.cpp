@@ -968,7 +968,7 @@ int64_t GetProofOfWorkReward(int64_t nFees)
 {
     int64_t nSubsidy = 0 * COIN;
     // Premine 650.000.000 coins
-    if(pindexBest->nHeight <= 650)
+    if(pindexBest->nHeight < 650)
     {
         nSubsidy = 1000000 * COIN; // ICO Premine
     }
